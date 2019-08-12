@@ -1,0 +1,34 @@
+{
+  "shell": "rc",
+  "timeout": 30,
+  "excludes": [
+    "\\.git"
+  ],
+  "rules": [
+    {
+      "includes": [
+        "\\.go$"
+      ],
+      "excludes": [
+        "#.*"
+      ],
+      "commands": [
+        {
+          "script": "go test -race ./..."
+        },
+        {
+          "script": "go install -race -v ./..."
+        },
+        {
+          "script": "GOOS=plan9 GOARCH=386 go build -v ./..."
+        },
+        {
+          "script": "errcheck ./^`{dirname $CHANGED_PATH}"
+        },
+        {
+          "script": "staticcheck ./^`{dirname $CHANGED_PATH}"
+        }
+      ]
+    }
+  ]
+}

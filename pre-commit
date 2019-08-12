@@ -1,0 +1,20 @@
+#!/bin/bash
+# To be used on Linux.
+set -euxo pipefail
+gofiles=$(
+	git diff --cached --name-only --diff-filter ACM |
+	grep '\.go$' || true
+)
+for f in $gofiles ; do
+	goimports -w $f
+	git add $f
+done
+go vet ./...
+go test -race ./...
+GOOS=plan9 go build ./...
+errcheck ./...
+staticcheck ./...
+go mod tidy
+git add go.mod go.sum
+# Did I forget copying the latest version of the hook?
+cmp pre-commit $0
