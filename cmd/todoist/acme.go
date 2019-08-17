@@ -73,15 +73,15 @@ func (w *window) resetTag() {
 	var tag string
 	switch w.mode {
 	case modeItem:
-		tag = " Main Cal New Get Put Complete Zap "
+		tag = " Main Cal New Get Put PutDel Complete Zap "
 	case modeNewItem:
-		tag = " Main Cal Put "
+		tag = " Main Cal Put PutDel "
 	case modeProject:
-		tag = " Main Cal New Get Put Sort Zap "
+		tag = " Main Cal New Get Put PutDel Sort Zap "
 	case modeNewProject:
-		tag = " Main Cal Put "
+		tag = " Main Cal Put PutDel "
 	case modeAllProjects:
-		tag = " Cal New Get Put Sort Search Zap "
+		tag = " Cal New Get Put PutDel Sort Search Zap "
 	case modeSearch:
 		tag = " Main Cal Get Sort Search Zap "
 	case modeCalendar:
@@ -388,7 +388,8 @@ func (w *window) Execute(cmd string) bool {
 	case "Get":
 		w.load()
 		return true
-	case "Put":
+	case "Put", "PutDel":
+		del := cmd == "PutDel"
 		if w.mode == modeNewProject {
 			tempID, err := func() (string, error) {
 				name, err := w.ReadAll("body")
@@ -412,6 +413,9 @@ func (w *window) Execute(cmd string) bool {
 					_ = w.Name("/todo/projects/%s", tempID)
 					_ = w.Ctl("clean")
 				}
+				if del {
+					_ = w.Del(true)
+				}
 				onProjectPut()
 			}
 		} else if w.mode == modeNewItem {
@@ -432,6 +436,9 @@ func (w *window) Execute(cmd string) bool {
 						w.mode = modeItem
 						w.itemID = id
 						w.resetTag()
+						if del {
+							_ = w.Del(true)
+						}
 						onItemPut(id, w.projectID)
 					} else {
 						_ = w.Name("/todo/items/%s", tempID)
@@ -480,6 +487,9 @@ func (w *window) Execute(cmd string) bool {
 				w.Errf("Could not reorder projects and/or update their names: %v", err)
 			} else {
 				_ = w.Ctl("clean")
+				if del {
+					_ = w.Del(true)
+				}
 				onAllProjectsPut()
 			}
 		} else if w.mode == modeProject {
@@ -522,6 +532,9 @@ func (w *window) Execute(cmd string) bool {
 				w.Errf("Could not update reorder items/move items across projects: %v", err)
 			} else {
 				_ = w.Ctl("clean")
+				if del {
+					_ = w.Del(true)
+				}
 				onProjectPut()
 			}
 		} else if w.mode == modeItem {
@@ -538,6 +551,9 @@ func (w *window) Execute(cmd string) bool {
 			if err := client.Push(); err != nil {
 				w.Errf("Could not update item: %v", err)
 			} else {
+				if del {
+					_ = w.Del(true)
+				}
 				onItemPut(w.itemID, w.projectID)
 			}
 		} else {
