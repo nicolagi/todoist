@@ -1,18 +1,18 @@
 {
   "shell": "rc",
   "timeout": 30,
-  "excludes": [
+  "exclude": [
     "\\.git"
   ],
   "rules": [
     {
-      "includes": [
+      "include": [
         "\\.go$"
       ],
-      "excludes": [
+      "exclude": [
         "#.*"
       ],
-      "commands": [
+      "run": [
         {
           "script": "go test -race ./..."
         },
