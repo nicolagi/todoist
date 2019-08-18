@@ -13,7 +13,20 @@ func (items itemsByDue) Swap(i, j int) {
 }
 
 func (items itemsByDue) Less(i, j int) bool {
-	return items[i].Due.Time().Before(items[j].Due.Time())
+	a, b := items[i].Due, items[j].Due
+	if a == nil && b == nil {
+		return items[i].ID < items[j].ID
+	}
+	if a != nil && b == nil {
+		return true
+	}
+	if a == nil && b != nil {
+		return false
+	}
+	if a.Time().Unix() == b.Time().Unix() {
+		return items[i].ID < items[j].ID
+	}
+	return a.Time().Before(b.Time())
 }
 
 type notesByPosted []*todoist.Note

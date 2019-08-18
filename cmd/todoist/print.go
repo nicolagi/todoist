@@ -34,7 +34,9 @@ func printSearch(w io.Writer, expr string) error {
 	for _, term := range strings.Split(expr, ":") {
 		addSearchTerm(search, strings.TrimSpace(term))
 	}
-	return printItems(w, search.Results())
+	items := search.Results()
+	sort.Sort(itemsByDue(items))
+	return printItems(w, items)
 }
 
 func printCalendar(w io.Writer) error {
