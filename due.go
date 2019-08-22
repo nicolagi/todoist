@@ -38,6 +38,10 @@ func (due Due) Time() time.Time {
 	if !strings.Contains(date, "T") {
 		date += "T23:59:59Z"
 	}
+	if !strings.HasSuffix(date, "Z") {
+		// I've seen sometimes "2019-08-23T10:00:00", without trailing "Z".
+		date += "Z"
+	}
 	var err error
 	due.time, err = time.Parse(time.RFC3339, date)
 	if err != nil {
