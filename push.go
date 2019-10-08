@@ -1,6 +1,7 @@
 package todoist
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,43 +13,64 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Error is one of the two possible responses for a Todoist command.
+// The other is an "ok" string.
+type Error struct {
+	Code    int    `json:"error_code"`
+	Message string `json:"error"`
+}
+
+// Error implements error.
+func (e *Error) Error() string {
+	return fmt.Sprintf("%s (%d)", e.Message, e.Code)
+}
+
+type commandStatus struct {
+	err *Error
+}
+
+func (status commandStatus) Err() error {
+	// If this looks odd:
+	// https://golang.org/doc/faq#nil_error
+	if status.err != nil {
+		return status.err
+	}
+	return nil
+}
+
+// The byte slice is either a string "ok", in case of a successful command, or another complex type to represent
+// the command error.
+func (status *commandStatus) UnmarshalJSON(b []byte) error {
+	if !bytes.Equal(b, []byte(`"ok"`)) {
+		if e := json.Unmarshal(b, &status.err); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
 // ErrStatusCode is returned in case the response from the API contains a status code that the client can't handle.
 var ErrStatusCode = errors.New("unhandled status code")
 
 type pushResponse struct {
-	// Map keys are UUIDs corresponding to commands.  The map value is an empty interface because the value
-	// type is either a string "ok", in case of a successful command, or another complex type to represent
-	// the command error.  Use the Err() method to extract the errors from this field.
-	SyncStatus map[string]interface{} `json:"sync_status"`
+	// Map keys are UUIDs corresponding to commands.
+	SyncStatus map[string]*commandStatus `json:"sync_status"`
 
 	// Maps each temporary UUID to its permanent id.
 	TempIDMapping map[string]int64 `json:"temp_id_mapping"`
-
-	// Lazily populated from the sync status.
-	err error
 }
 
 func (r *pushResponse) Err() error {
-	// We set the sync status to nil to signal that we've already computed the error.
-	if r.SyncStatus == nil {
-		return r.err
-	}
+	var b bytes.Buffer
 	for command, status := range r.SyncStatus {
-		// Assume that if it's a string, it means the command went well, per API documentation.
-		if _, ok := status.(string); ok {
-			delete(r.SyncStatus, command)
+		if err := status.Err(); err != nil {
+			fmt.Fprintf(&b, "%v: %v\n", command, err)
 		}
 	}
-	if len(r.SyncStatus) != 0 {
-		b, err := json.Marshal(r.SyncStatus)
-		if err != nil {
-			r.err = fmt.Errorf("could not re-marshal errors: %w", err)
-		} else {
-			r.err = errors.New(string(b))
-		}
+	if b.Len() > 0 {
+		return errors.New(b.String())
 	}
-	r.SyncStatus = nil
-	return r.err
+	return nil
 }
 
 // Push flushes all queued commands. It will return an error if any of them is not successful. If more than one
