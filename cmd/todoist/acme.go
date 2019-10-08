@@ -73,19 +73,19 @@ func (w *window) resetTag() {
 	var tag string
 	switch w.mode {
 	case modeItem:
-		tag = " Main Cal New Get Put PutDel Complete Zap "
+		tag = " Projects Calendar New Get Put PutDel Complete Zap "
 	case modeNewItem:
-		tag = " Main Cal Put PutDel "
+		tag = " Projects Calendar Put PutDel "
 	case modeProject:
-		tag = " Main Cal New Get Put PutDel Sort Zap "
+		tag = " Projects Calendar New Get Put PutDel Sort Zap "
 	case modeNewProject:
-		tag = " Main Cal Put PutDel "
+		tag = " Projects Calendar Put PutDel "
 	case modeAllProjects:
-		tag = " Cal New Get Put PutDel Sort Search Zap "
+		tag = " Calendar New Get Put PutDel Sort Search Zap "
 	case modeSearch:
-		tag = " Main Cal Get Sort Search Zap "
+		tag = " Projects Calendar Get Sort Search Zap "
 	case modeCalendar:
-		tag = " Main Get Search Zap "
+		tag = " Projects Get Search Zap "
 	}
 	_ = w.Ctl("cleartag")
 	_ = w.Fprintf("tag", tag)
@@ -379,10 +379,10 @@ func (w *window) Execute(cmd string) bool {
 		return false
 	}
 	switch cmd {
-	case "Main":
+	case "Projects":
 		newAllProjectsWindow()
 		return true
-	case "Cal":
+	case "Calendar":
 		newCalendarWindow()
 		return true
 	case "Get":
