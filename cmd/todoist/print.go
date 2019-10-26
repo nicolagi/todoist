@@ -18,7 +18,7 @@ func printAllProjects(w io.Writer) error {
 	all := client.SearchProjects().WithIsArchived(0).WithIsDeleted(0).Results()
 	sort.Sort(projectsByChildOrder(all))
 	for _, p := range all {
-		_, _ = fmt.Fprintf(w, "%v\t%v\n", p.ID, p.Name)
+		_, _ = fmt.Fprintf(w, "%v\t(%d) %v\n", p.ID, p.ChildOrder, p.Name)
 	}
 	return nil
 }
@@ -76,7 +76,7 @@ func printItems(w io.Writer, items []*todoist.Item) error {
 		if i.Due != nil {
 			dueIn = relativeDurationFormat(time.Until(i.Due.Time()))
 		}
-		_, _ = fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", i.ID, strings.Join(labelNames, " "), dueIn, i.Content)
+		_, _ = fmt.Fprintf(w, "%v\t%v\t%v\t(%d) %v\n", i.ID, strings.Join(labelNames, " "), dueIn, i.ChildOrder, i.Content)
 	}
 	return nil
 }

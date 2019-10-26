@@ -396,7 +396,7 @@ func (w *window) Execute(cmd string) bool {
 				if err != nil {
 					return "", err
 				}
-				pp := todoist.NewProjectPatch(0).WithColor(0).WithName(strings.TrimSpace(string(name)))
+				pp := todoist.NewProjectPatch(0).WithColor(0).WithName(strings.TrimSpace(string(name))).WithChildOrder(1)
 				tempID := client.QueueProjectAdd(pp)
 				return tempID, client.Push()
 			}()
@@ -419,7 +419,7 @@ func (w *window) Execute(cmd string) bool {
 				onProjectPut()
 			}
 		} else if w.mode == modeNewItem {
-			item := todoist.NewItemPatch(0).WithProjectID(w.projectID)
+			item := todoist.NewItemPatch(0).WithProjectID(w.projectID).WithChildOrder(1)
 			note := todoist.NewNotePatch(0)
 			if err := w.populateItem(item, note); err != nil {
 				w.Errf("Failed parsing edited window: %v", err)

@@ -53,6 +53,14 @@ func (item *ItemPatch) WithContent(value string) *ItemPatch {
 	return item
 }
 
+func (item *ItemPatch) WithChildOrder(value int) *ItemPatch {
+	if item.err != nil {
+		return item
+	}
+	item.attrs["child_order"] = strconv.Itoa(value)
+	return item
+}
+
 // WithLabels marks the item's labels property to be updated to the given value. Note that it takes arguments of
 // type ID.  That means temporary ids can be used, e.g., one can create a label only locally with QueueLabelAdd,
 // and reference it here using its temporary ID, and then push both commands at once with Push.

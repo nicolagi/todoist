@@ -40,6 +40,11 @@ func (project *ProjectPatch) WithColor(value int) *ProjectPatch {
 	return project
 }
 
+func (project *ProjectPatch) WithChildOrder(value int) *ProjectPatch {
+	project.attrs["child_order"] = strconv.Itoa(value)
+	return project
+}
+
 // MarshalJSON implements json.Marshaler.
 func (project *ProjectPatch) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
