@@ -511,16 +511,22 @@ func (w *window) Execute(cmd string) bool {
 						log.WithField("line", line).Warning("Ignoring line that does not start with a number")
 						continue
 					}
-					item, ok := client.ItemByID(id)
-					if !ok {
-						log.WithField("line", line).Warning("Ignoring line that refers to an unknown item")
-						continue
-					}
-					if item.ProjectID != w.projectID {
-						client.QueueItemMove(todoist.NewID(item.ID), projectID)
-					}
-					if item.ChildOrder != i {
-						reorder.Add(id, i)
+					if id == 0 {
+						client.QueueItemAdd(
+							todoist.NewItemPatch(0).WithProjectID(w.projectID).WithChildOrder(i).WithContent(strings.Join(fields[1:], " ")),
+						)
+					} else {
+						item, ok := client.ItemByID(id)
+						if !ok {
+							log.WithField("line", line).Warning("Ignoring line that refers to an unknown item")
+							continue
+						}
+						if item.ProjectID != w.projectID {
+							client.QueueItemMove(todoist.NewID(item.ID), projectID)
+						}
+						if item.ChildOrder != i {
+							reorder.Add(id, i)
+						}
 					}
 				}
 				if !reorder.Empty() {
