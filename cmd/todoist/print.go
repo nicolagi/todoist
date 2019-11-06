@@ -24,6 +24,11 @@ func printAllProjects(w io.Writer) error {
 }
 
 func printProjectByID(w io.Writer, id int64) error {
+	project, ok := client.ProjectByID(id)
+	if !ok {
+		return errNotFound
+	}
+	_, _ = fmt.Fprintf(w, "Project: %s\n\n", project.Name)
 	items := client.SearchItems().WithProjectID(id).WithChecked(0).Results()
 	sort.Sort(itemsByChildOrder(items))
 	return printItems(w, items)

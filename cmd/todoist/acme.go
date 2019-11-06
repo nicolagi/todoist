@@ -503,7 +503,7 @@ func (w *window) Execute(cmd string) bool {
 				lines := strings.Split(string(data), "\n")
 				for i, line := range lines {
 					fields := strings.Fields(line)
-					if len(fields) == 0 {
+					if len(fields) == 0 || fields[0] == "Project:" {
 						continue
 					}
 					id, err := strconv.ParseInt(fields[0], 10, 64)
