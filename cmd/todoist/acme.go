@@ -323,6 +323,24 @@ func skipField(s string) string {
 	return s[i:]
 }
 
+func isOrderNumber(s string) bool {
+	l := len(s)
+	if l == 0 {
+		return false
+	}
+	if s[0] != '(' {
+		return false
+	}
+	i := 1
+	for i < l && s[i] >= '0' && s[i] <= '9' {
+		i++
+	}
+	if s[i] != ')' {
+		return false
+	}
+	return i+1 == l
+}
+
 // Execute is triggered by button-2 click in acme.
 func (w *window) Execute(cmd string) bool {
 	if strings.HasPrefix(cmd, "Search ") {
@@ -472,7 +490,11 @@ func (w *window) Execute(cmd string) bool {
 					if p.ChildOrder != i {
 						reorder.Add(id, i)
 					}
-					if name := strings.TrimSpace(strings.Join(fields[1:], " ")); len(name) > 0 {
+					fields = fields[1:]            // Skip project ID.
+					for isOrderNumber(fields[0]) { // Skip fields of the form (42).
+						fields = fields[1:]
+					}
+					if name := strings.TrimSpace(strings.Join(fields, " ")); len(name) > 0 {
 						if p.Name != name {
 							client.QueueProjectUpdate(todoist.NewProjectPatch(id).WithColor(0).WithName(name))
 						}
