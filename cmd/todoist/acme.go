@@ -414,7 +414,7 @@ func (w *window) Execute(cmd string) bool {
 				if err != nil {
 					return "", err
 				}
-				pp := todoist.NewProjectPatch(0).WithColor(0).WithName(strings.TrimSpace(string(name))).WithChildOrder(1)
+				pp := todoist.NewProjectPatch(0).WithColor(31).WithName(strings.TrimSpace(string(name))).WithChildOrder(1)
 				tempID := client.QueueProjectAdd(pp)
 				return tempID, client.Push()
 			}()
@@ -496,7 +496,7 @@ func (w *window) Execute(cmd string) bool {
 					}
 					if name := strings.TrimSpace(strings.Join(fields, " ")); len(name) > 0 {
 						if p.Name != name {
-							client.QueueProjectUpdate(todoist.NewProjectPatch(id).WithColor(0).WithName(name))
+							client.QueueProjectUpdate(todoist.NewProjectPatch(id).WithName(name))
 						}
 					}
 				}
