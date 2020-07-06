@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"9fans.net/go/acme"
+	"github.com/fhs/9fans-go/acme"
 	"github.com/nicolagi/todoist"
 	log "github.com/sirupsen/logrus"
 )
