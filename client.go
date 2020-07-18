@@ -46,10 +46,11 @@ type clientData struct {
 	// entities that have changed since the previous time (according to this token) we have called the sync API.
 	SyncToken string `json:"sync_token"`
 
-	Labels   map[int64]*Label   `json:"labels"`
-	Projects map[int64]*Project `json:"projects"`
-	Items    map[int64]*Item    `json:"items"`
-	Notes    map[int64]*Note    `json:"notes"`
+	Items        map[int64]*Item    `json:"items"`
+	Labels       map[int64]*Label   `json:"labels"`
+	Notes        map[int64]*Note    `json:"notes"`
+	ProjectNotes map[int64]*Note    `json:"project_notes"`
+	Projects     map[int64]*Project `json:"projects"`
 }
 
 // Client is a Todoist Sync API client, for the v8 API version. For more documentation on the API see
@@ -79,10 +80,11 @@ type Client struct {
 func NewClient(token string, opts ...clientOption) (*Client, error) {
 	var data clientData
 	data.SyncToken = "*"
-	data.Labels = make(map[int64]*Label)
-	data.Projects = make(map[int64]*Project)
 	data.Items = make(map[int64]*Item)
+	data.Labels = make(map[int64]*Label)
 	data.Notes = make(map[int64]*Note)
+	data.ProjectNotes = make(map[int64]*Note)
+	data.Projects = make(map[int64]*Project)
 	c := &Client{
 		endpoint: "https://api.todoist.com/sync/v8/sync",
 		token:    token,

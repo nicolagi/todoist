@@ -11,6 +11,7 @@ import (
 type Note struct {
 	ID        int64  `json:"id"`
 	ItemID    int64  `json:"item_id"`
+	ProjectID int64  `json:"project_id"`
 	Content   string `json:"content"`
 	IsDeleted int    `json:"is_deleted"`
 	Posted    string `json:"posted"`

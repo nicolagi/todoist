@@ -21,9 +21,21 @@ func (s *NoteScan) WithItemID(item int64) *NoteScan {
 	return s
 }
 
+func (s *NoteScan) WithProjectID(project int64) *NoteScan {
+	s.predicates = append(s.predicates, func(note *Note) bool {
+		return note.ProjectID == project
+	})
+	return s
+}
+
 func (s *NoteScan) Results() []*Note {
 	var results []*Note
 	for _, note := range s.client.data.Notes {
+		if s.match(note) {
+			results = append(results, note)
+		}
+	}
+	for _, note := range s.client.data.ProjectNotes {
 		if s.match(note) {
 			results = append(results, note)
 		}

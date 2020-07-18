@@ -18,10 +18,11 @@ type pullResponse struct {
 	// entities that have changed since the previous time (according to this token) we have called the sync API.
 	SyncToken string `json:"sync_token"`
 
-	Labels   []*Label   `json:"labels"`
-	Projects []*Project `json:"projects"`
-	Items    []*Item    `json:"items"`
-	Notes    []*Note    `json:"notes"`
+	Items        []*Item    `json:"items"`
+	Labels       []*Label   `json:"labels"`
+	Notes        []*Note    `json:"notes"`
+	ProjectNotes []*Note    `json:"project_notes"`
+	Projects     []*Project `json:"projects"`
 }
 
 // Pull makes a sync API call to get everything that changed since the last time it was called, and updates the
@@ -38,7 +39,7 @@ func (c *Client) Pull() error {
 	data := make(url.Values)
 	data.Set("token", c.token)
 	data.Set("sync_token", c.data.SyncToken)
-	data.Set("resource_types", `["items","labels","notes","projects"]`)
+	data.Set("resource_types", `["items","labels","notes","project_notes","projects"]`)
 	r, err := http.PostForm(c.endpoint, data)
 	if err != nil {
 		return fmt.Errorf("pull: %w", err)
@@ -77,6 +78,9 @@ func (c *Client) Pull() error {
 			c.updateLabel(label)
 		}
 		for _, note := range pr.Notes {
+			c.updateNote(note)
+		}
+		for _, note := range pr.ProjectNotes {
 			c.updateNote(note)
 		}
 		c.lastPulled = time.Now()

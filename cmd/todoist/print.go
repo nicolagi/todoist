@@ -29,6 +29,11 @@ func printProjectByID(w io.Writer, id int64) error {
 		return errNotFound
 	}
 	_, _ = fmt.Fprintf(w, "Project: %s\n\n", project.Name)
+	notes := client.SearchNotes().WithProjectID(id).WithItemID(0).WithIsDeleted(0).Results()
+	sort.Sort(notesByPosted(notes))
+	for _, note := range notes {
+		_, _ = fmt.Fprintf(w, "Note — %d — %s — %s\n\n", note.ID, note.Posted, note.Content)
+	}
 	items := client.SearchItems().WithProjectID(id).WithChecked(0).Results()
 	sort.Sort(itemsByChildOrder(items))
 	return printItems(w, items)
